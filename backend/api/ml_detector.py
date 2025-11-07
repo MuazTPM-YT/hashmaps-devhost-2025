@@ -3,7 +3,9 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from decimal import Decimal
-from .models import DeliveryTrip, ComplianceAlert
+from .models import DeliveryTrip, ComplianceAlert, Company, ComplianceDeadline
+from datetime import timedelta
+from django.utils import timezone
 
 
 class EmissionAnomalyDetector:
@@ -31,11 +33,15 @@ class EmissionAnomalyDetector:
             'vehicle__vehicle_type'
         )))
         
+        df['distance_km'] = df['distance_km'].astype(float)
+        df['weight_tonnes'] = df['weight_tonnes'].astype(float)
+        df['emissions_kg_co2'] = df['emissions_kg_co2'].astype(float)
+        
         df['emissions_per_km'] = df['emissions_kg_co2'] / df['distance_km']
         df['emissions_per_tonne_km'] = df['emissions_kg_co2'] / (df['distance_km'] * df['weight_tonnes'].replace(0, 1))
         df['weight_per_km'] = df['weight_tonnes'] / df['distance_km']
-        vehicle_dummies = pd.get_dummies(df['vehicle__vehicle_type'], prefix='vehicle')
         
+        vehicle_dummies = pd.get_dummies(df['vehicle__vehicle_type'], prefix='vehicle')
         features = pd.concat([
             df[['distance_km', 'weight_tonnes', 'emissions_per_km', 'emissions_per_tonne_km']],
             vehicle_dummies
@@ -53,9 +59,9 @@ class EmissionAnomalyDetector:
                 'message': 'Insufficient data (minimum 10 trips required)',
                 'anomalies': []
             }
- 
-        avg_emissions = df['emissions_kg_co2'].mean()
-        std_emissions = df['emissions_kg_co2'].std()
+        
+        avg_emissions = float(df['emissions_kg_co2'].mean())
+        std_emissions = float(df['emissions_kg_co2'].std())
         threshold = avg_emissions * (1 + self.threshold_percentage / 100)
         features_scaled = self.scaler.fit_transform(features)
         predictions = self.model.fit_predict(features_scaled)
@@ -64,12 +70,12 @@ class EmissionAnomalyDetector:
         anomaly_count = 0
         
         for idx in range(len(df)):
-            trip_id = df.iloc[idx]['id']
-            emissions = df.iloc[idx]['emissions_kg_co2']
+            trip_id = int(df.iloc[idx]['id'])
+            emissions = float(df.iloc[idx]['emissions_kg_co2'])
             ml_anomaly = predictions[idx] == -1
             threshold_anomaly = emissions > threshold
-            
             is_anomaly = ml_anomaly or threshold_anomaly
+            
             if is_anomaly:
                 anomaly_count += 1
                 percentage_above = ((emissions - avg_emissions) / avg_emissions) * 100
@@ -80,13 +86,13 @@ class EmissionAnomalyDetector:
                 )
                 
                 anomalies.append({
-                    'trip_id': int(trip_id),
-                    'emissions_kg': float(emissions),
-                    'average_kg': float(avg_emissions),
-                    'percentage_above_avg': float(percentage_above),
+                    'trip_id': trip_id,
+                    'emissions_kg': round(emissions, 3),
+                    'average_kg': round(avg_emissions, 3),
+                    'percentage_above_avg': round(percentage_above, 2),
                     'ml_detected': ml_anomaly,
                     'threshold_exceeded': threshold_anomaly,
-                    'anomaly_score': float(anomaly_scores[idx])
+                    'anomaly_score': round(float(anomaly_scores[idx]), 3)
                 })
         
         if anomaly_count > 0:
@@ -100,31 +106,26 @@ class EmissionAnomalyDetector:
                 message=f"Detected {anomaly_count} anomalous delivery trips with emissions >20% above average",
                 details={
                     'anomaly_count': anomaly_count,
-                    'average_emissions': float(avg_emissions),
-                    'threshold': float(threshold),
+                    'average_emissions': round(avg_emissions, 3),
+                    'threshold': round(threshold, 3),
                     'trip_ids': [a['trip_id'] for a in anomalies[:10]]
                 }
             )
         
         self.fitted = True
-        
         return {
             'success': True,
             'total_trips': len(df),
             'anomaly_count': anomaly_count,
-            'anomaly_percentage': (anomaly_count / len(df)) * 100,
-            'average_emissions': float(avg_emissions),
-            'std_emissions': float(std_emissions),
-            'threshold_kg': float(threshold),
-            'anomalies': anomalies[:20]
+            'anomaly_percentage': round((anomaly_count / len(df)) * 100, 2),
+            'average_emissions': round(avg_emissions, 3),
+            'std_emissions': round(std_emissions, 3),
+            'threshold_kg': round(threshold, 3),
+            'anomalies': anomalies[:20]  # Return top 20
         }
 
 
 def check_compliance_deadlines(company_id=None):
-    from datetime import timedelta
-    from django.utils import timezone
-    from .models import Company, ComplianceDeadline, ComplianceAlert
-    
     today = timezone.now().date()
     upcoming_deadlines = ComplianceDeadline.objects.filter(
         deadline_date__gte=today,
