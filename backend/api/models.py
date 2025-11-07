@@ -148,6 +148,7 @@ class EmissionDataLake(models.Model):
     record_count = models.IntegerField(default=0)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     source = models.CharField(max_length=100, default='API')
+    batch_metadata = models.JSONField(null=True, blank=True, help_text="Batch processing info")
     
     class Meta:
         ordering = ['-uploaded_at']
@@ -157,3 +158,4 @@ class EmissionDataLake(models.Model):
     
     def __str__(self):
         return f"DataLake Batch {self.id} - {self.company.name} ({self.record_count} records)"
+
