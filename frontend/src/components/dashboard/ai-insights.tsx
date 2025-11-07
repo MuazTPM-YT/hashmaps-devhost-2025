@@ -25,8 +25,8 @@ export default function AIInsightsPanel() {
     <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 border-blue-200 dark:border-blue-800 mx-4 my-4 max-w-full max-h-[80vh] flex flex-col">
       <h3 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white mb-4 sticky top-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950 z-10 px-2 py-1">
         <Lightbulb className="w-5 h-5 text-amber-500" />
-        AI Insights & Recommendations
-      </h3>
+        AI CHAT BOX     
+        </h3>
       <div className="space-y-4 overflow-auto flex-grow">
         {chatLog.map((entry, idx) => (
           <div

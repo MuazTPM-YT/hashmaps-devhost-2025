@@ -6,7 +6,6 @@ import EmissionsByEnergyType from "./emissions-chart"
 import TopEmittingRoutes from "./top-routes-chart"
 import TrendChart from "./trend-chart"
 import AIInsightsPanel from "./ai-insights"
-import DataUploadSection from "./data-upload"
 import AlertsSection from "./alerts-section"
 import ActivityLogPanel from "./activity-log-panel"
 import ScopeEmissions from "./scope-emissions"
@@ -52,10 +51,7 @@ export default function Dashboard() {
             {/* Section 1: ESG Overview Dashboard */}
             <section className="space-y-6">
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">ESG Overview</h2>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Real-time sustainability metrics and compliance data
-                </p>
+
               </div>
 
               {/* Metric Cards */}
@@ -76,14 +72,6 @@ export default function Dashboard() {
               <AIInsightsPanel />
             </section>
 
-            {/* Section 2: Data Upload & Automation */}
-            <section className="space-y-6">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Data & Automation</h2>
-                <p className="text-slate-600 dark:text-slate-400">Upload ESG data and generate compliance reports</p>
-              </div>
-              <DataUploadSection />
-            </section>
 
             {/* Section 3: Predictive Alerts */}
             <section className="space-y-6">
