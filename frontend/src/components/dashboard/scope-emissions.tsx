@@ -386,35 +386,53 @@ export default function ScopeEmissions() {
         </TabsContent>
       </Tabs>
 
-      {/* CSRD & EU Taxonomy Compliance Notes */}
-      <Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
-        <div className="space-y-3">
-          <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-            <Activity className="w-6 h-6 text-blue-600" />
-            CSRD & EU Taxonomy Compliance
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
-            <div>
-              <p className="font-bold text-slate-900 dark:text-white mb-2">CSRD Requirements (Art. 8):</p>
-              <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
-                <li>Scope 1 & 2 emissions must be reported</li>
-                <li>Data quality and assurance requirements</li>
-                <li>Science-based targets alignment</li>
-                <li>Annual verification required</li>
-              </ul>
-            </div>
-            <div>
-              <p className="font-bold text-slate-900 dark:text-white mb-2">EU Taxonomy Alignment:</p>
-              <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
-                <li>Substantial contribution to climate action</li>
-                <li>Do no significant harm (DNSH) principle</li>
-                <li>Minimum social safeguards compliance</li>
-                <li>Technical screening criteria met</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </Card>
+ {/* CSRD & EU Taxonomy Compliance Notes */}
+<Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+  <div className="space-y-4">
+    <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+      <Activity className="w-6 h-6 text-blue-600" />
+      CSRD & EU Taxonomy Compliance
+    </h3>
+    
+    <ul className="space-y-2 text-base text-slate-700 dark:text-slate-300">
+      <li className="flex items-start gap-3">
+        <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+        <span>Report Scope 1 & 2 emissions annually with verified data</span>
+      </li>
+      <li className="flex items-start gap-3">
+        <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+        <span>Align emissions reduction with science-based targets</span>
+      </li>
+      <li className="flex items-start gap-3">
+        <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+        <span>Ensure substantial contribution to climate action goals</span>
+      </li>
+      <li className="flex items-start gap-3">
+        <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+        <span>Maintain minimum social safeguards in operations</span>
+      </li>
+      <li className="flex items-start gap-3">
+        <span className="text-blue-600 dark:text-blue-400 font-bold mt-1">•</span>
+        <span>Implement do no significant harm (DNSH) principles</span>
+      </li>
+    </ul>
+
+    <div className="pt-4 border-t border-blue-200 dark:border-blue-700">
+      <a 
+        href="https://finance.ec.europa.eu/capital-markets-union-and-financial-markets/company-reporting-and-auditing/company-reporting/corporate-sustainability-reporting_en" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-base font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+      >
+        Read More on Official CSRD Guidelines
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</Card>
+
     </div>
   )
 }
