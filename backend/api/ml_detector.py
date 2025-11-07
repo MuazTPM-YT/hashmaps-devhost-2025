@@ -7,7 +7,6 @@ from .models import DeliveryTrip, ComplianceAlert, Company, ComplianceDeadline
 from datetime import timedelta
 from django.utils import timezone
 
-
 class EmissionAnomalyDetector:
     def __init__(self, contamination=0.1, threshold_percentage=20):
         self.model = IsolationForest(
@@ -123,7 +122,6 @@ class EmissionAnomalyDetector:
             'threshold_kg': round(threshold, 3),
             'anomalies': anomalies[:20]  # Return top 20
         }
-
 
 def check_compliance_deadlines(company_id=None):
     today = timezone.now().date()
