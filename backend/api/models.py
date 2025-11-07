@@ -142,3 +142,18 @@ class ComplianceAlert(models.Model):
     def __str__(self):
         return f"{self.get_alert_type_display()} - {self.severity} ({self.company.name})"
 
+class EmissionDataLake(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
+    data_batch = models.JSONField(help_text="Raw emission data batch")
+    record_count = models.IntegerField(default=0)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    source = models.CharField(max_length=100, default='API')
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        indexes = [
+            models.Index(fields=['company', 'uploaded_at']),
+        ]
+    
+    def __str__(self):
+        return f"DataLake Batch {self.id} - {self.company.name} ({self.record_count} records)"
