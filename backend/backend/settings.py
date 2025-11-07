@@ -11,6 +11,8 @@ SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False").lower() in ["true", "1", "yes"]
 ALLOWED_HOSTS = ["*"] if DEBUG else os.environ.get("ALLOWED_HOSTS", "").split(",")
 
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -23,6 +25,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'rest_framework_simplejwt',
     'corsheaders',
+
+    'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
