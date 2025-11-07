@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Company, Vehicle, DeliveryTrip, ComplianceDeadline, ComplianceAlert
+from .models import Company, Vehicle, DeliveryTrip, ComplianceDeadline, ComplianceAlert, EmissionDataLake
 
 
 @admin.register(Company)
@@ -37,3 +37,9 @@ class ComplianceAlertAdmin(admin.ModelAdmin):
     search_fields = ('company__name', 'message')
     date_hierarchy = 'triggered_at'
 
+@admin.register(EmissionDataLake)
+class EmissionDataLakeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'company', 'record_count', 'source', 'uploaded_at')
+    list_filter = ('company', 'source', 'uploaded_at')
+    readonly_fields = ('uploaded_at',)
+    search_fields = ('company__name',)
