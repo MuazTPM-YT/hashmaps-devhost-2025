@@ -23,8 +23,9 @@ class Company(models.Model):
         if not trips.exists():
             return 50.0
         
-        total_emissions = sum(trip.emissions_kg_co2 for trip in trips)
-        total_distance = sum(trip.distance_km for trip in trips)
+        total_emissions = float(sum(trip.emissions_kg_co2 for trip in trips))
+        total_distance = float(sum(trip.distance_km for trip in trips))
+        
         if total_distance == 0:
             return 50.0
         
@@ -34,7 +35,7 @@ class Company(models.Model):
         elif avg_emissions_per_km >= 1.0:
             score = 0.0
         else:
-            score = 100 - ((avg_emissions_per_km - 0.2) / 0.8 * 100)
+            score = 100.0 - ((avg_emissions_per_km - 0.2) / 0.8 * 100.0)
         
         self.esg_score = max(0.0, min(100.0, score))
         self.save()

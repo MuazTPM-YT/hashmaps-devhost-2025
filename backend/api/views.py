@@ -1,4 +1,3 @@
-# esg_compliance/views.py
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -48,7 +47,6 @@ class DeliveryTripViewSet(viewsets.ModelViewSet):
     filterset_fields = ['company', 'vehicle', 'is_anomaly', 'trip_date']
     
     def perform_create(self, serializer):
-        """Calculate emissions when creating trip"""
         trip_data = serializer.validated_data
         
         emissions = calculate_emissions(
