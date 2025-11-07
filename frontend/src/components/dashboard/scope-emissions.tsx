@@ -63,55 +63,88 @@ const scope2Data = {
   ],
 }
 
+// AI-generated insight functions
+function generateSourcesInsight(sources: { name: string; value: number; percentage: number }[]) {
+  if (!sources?.length) return "No emission sources data available.";
+  const sorted = [...sources].sort((a, b) => b.percentage - a.percentage);
+  const top = sorted[0];
+  const second = sorted[1];
+  const total = sources.reduce((sum, s) => sum + s.value, 0);
+  
+  return `The primary emission source is ${top.name}, contributing ${top.percentage.toFixed(1)}% (${top.value.toLocaleString()} tonnes CO2e) of total emissions. ${second.name} is the second-largest contributor at ${second.percentage.toFixed(1)}% (${second.value.toLocaleString()} tonnes CO2e). Combined, the top two sources account for ${(top.percentage + second.percentage).toFixed(1)}% of all Scope emissions, totaling ${total.toLocaleString()} tonnes CO2e.`;
+}
+
+function generateTrendInsight(trend: { month: string; emissions: number; target: number }[]) {
+  if (!trend?.length) return "No trend data available.";
+  const start = trend[0];
+  const end = trend[trend.length - 1];
+  const change = end.emissions - start.emissions;
+  const changePercent = ((change / start.emissions) * 100).toFixed(1);
+  const avgEmissions = (trend.reduce((sum, m) => sum + m.emissions, 0) / trend.length).toFixed(0);
+  const avgTarget = (trend.reduce((sum, m) => sum + m.target, 0) / trend.length).toFixed(0);
+  const meetingTarget = end.emissions <= end.target;
+  
+  return `Emissions ${change < 0 ? "decreased" : "increased"} from ${start.emissions} to ${end.emissions} tonnes CO2e between ${start.month} and ${end.month}, representing a ${Math.abs(parseFloat(changePercent))}% ${change < 0 ? "reduction" : "increase"}. The average monthly emissions stand at ${avgEmissions} tonnes CO2e compared to an average target of ${avgTarget} tonnes CO2e. As of ${end.month}, emissions are ${meetingTarget ? "meeting" : "exceeding"} the target by ${Math.abs(end.emissions - end.target)} tonnes CO2e.`;
+}
+
+function generateGridMixInsight(gridMix: { name: string; value: number }[]) {
+  if (!gridMix?.length) return "No grid mix data available.";
+  const sorted = [...gridMix].sort((a, b) => b.value - a.value);
+  const fossil = gridMix.filter(g => g.name === "Coal" || g.name === "Natural Gas").reduce((sum, g) => sum + g.value, 0);
+  const lowCarbon = gridMix.filter(g => g.name === "Nuclear" || g.name === "Renewable").reduce((sum, g) => sum + g.value, 0);
+  
+  return `The energy grid is dominated by ${sorted[0].name} at ${sorted[0].value}%, followed by ${sorted[1].name} at ${sorted[1].value}%. Fossil fuel sources (Coal and Natural Gas) collectively represent ${fossil}% of the grid mix, while low-carbon sources (Nuclear and Renewable) contribute ${lowCarbon}%. This grid composition directly impacts the carbon intensity of Scope 2 emissions from purchased electricity.`;
+}
+
 export default function ScopeEmissions() {
   return (
     <div className="space-y-6">
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="p-4 border-l-4 border-red-500">
-          <div className="space-y-1">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Scope 1 Emissions</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+        <Card className="p-6 border-l-4 border-red-500">
+          <div className="space-y-2">
+            <p className="text-base text-slate-600 dark:text-slate-400 font-medium">Scope 1 Emissions</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">
               {scope1Data.totalEmissions.toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{scope1Data.unit}</p>
-            <p className="text-xs text-red-600 dark:text-red-400 mt-2">Direct emissions from owned sources</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{scope1Data.unit}</p>
+            <p className="text-sm text-red-600 dark:text-red-400 mt-2">Direct emissions from owned sources</p>
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-orange-500">
-          <div className="space-y-1">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Scope 2 Emissions</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+        <Card className="p-6 border-l-4 border-orange-500">
+          <div className="space-y-2">
+            <p className="text-base text-slate-600 dark:text-slate-400 font-medium">Scope 2 Emissions</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">
               {scope2Data.totalEmissions.toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{scope2Data.unit}</p>
-            <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">Indirect energy-related emissions</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{scope2Data.unit}</p>
+            <p className="text-sm text-orange-600 dark:text-orange-400 mt-2">Indirect energy-related emissions</p>
           </div>
         </Card>
 
-        <Card className="p-4 border-l-4 border-purple-500">
-          <div className="space-y-1">
-            <p className="text-sm text-slate-600 dark:text-slate-400">Total Scope 1+2</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-white">
+        <Card className="p-6 border-l-4 border-purple-500">
+          <div className="space-y-2">
+            <p className="text-base text-slate-600 dark:text-slate-400 font-medium">Total Scope 1+2</p>
+            <p className="text-4xl font-bold text-slate-900 dark:text-white">
               {(scope1Data.totalEmissions + scope2Data.totalEmissions).toLocaleString()}
             </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{scope1Data.unit}</p>
-            <p className="text-xs text-purple-600 dark:text-purple-400 mt-2">CSRD Reporting Category</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{scope1Data.unit}</p>
+            <p className="text-sm text-purple-600 dark:text-purple-400 mt-2">CSRD Reporting Category</p>
           </div>
         </Card>
       </div>
 
       {/* Detailed Breakdown */}
       <Tabs defaultValue="scope1" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="scope1" className="gap-2">
-            <Truck className="w-4 h-4" />
+        <TabsList className="grid w-full grid-cols-2 text-base">
+          <TabsTrigger value="scope1" className="gap-2 text-base">
+            <Truck className="w-5 h-5" />
             <span className="hidden sm:inline">Scope 1</span>
             <span className="inline sm:hidden">Direct</span>
           </TabsTrigger>
-          <TabsTrigger value="scope2" className="gap-2">
-            <Zap className="w-4 h-4" />
+          <TabsTrigger value="scope2" className="gap-2 text-base">
+            <Zap className="w-5 h-5" />
             <span className="hidden sm:inline">Scope 2</span>
             <span className="inline sm:hidden">Indirect</span>
           </TabsTrigger>
@@ -122,7 +155,7 @@ export default function ScopeEmissions() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Scope 1 Breakdown */}
             <Card className="p-6">
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">
                 Scope 1 Emission Sources (CSRD Art. 8)
               </h3>
               <div className="h-80">
@@ -148,11 +181,19 @@ export default function ScopeEmissions() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              
+              {/* AI Insight Table */}
+              <div className="mt-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <h4 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-3">AI Analysis</h4>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {generateSourcesInsight(scope1Data.sources)}
+                </p>
+              </div>
             </Card>
 
             {/* Scope 1 Trend */}
             <Card className="p-6">
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Monthly Scope 1 Trend</h3>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Monthly Scope 1 Trend</h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={scope1Data.trend}>
@@ -166,22 +207,30 @@ export default function ScopeEmissions() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              
+              {/* AI Insight Table */}
+              <div className="mt-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <h4 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-3">AI Analysis</h4>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {generateTrendInsight(scope1Data.trend)}
+                </p>
+              </div>
             </Card>
           </div>
 
           {/* Scope 1 Detailed Table */}
           <Card className="p-6">
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Scope 1 Detailed Breakdown</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Scope 1 Detailed Breakdown</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-base">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">
+                    <th className="text-left py-3 px-4 font-bold text-slate-900 dark:text-white">
                       Emission Source
                     </th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">Tonnes CO₂e</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">% of Scope 1</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">
+                    <th className="text-right py-3 px-4 font-bold text-slate-900 dark:text-white">Tonnes CO₂e</th>
+                    <th className="text-right py-3 px-4 font-bold text-slate-900 dark:text-white">% of Scope 1</th>
+                    <th className="text-left py-3 px-4 font-bold text-slate-900 dark:text-white">
                       Description (CSRD)
                     </th>
                   </tr>
@@ -192,7 +241,7 @@ export default function ScopeEmissions() {
                       key={idx}
                       className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
                     >
-                      <td className="py-3 px-4 text-slate-900 dark:text-white font-medium">{source.name}</td>
+                      <td className="py-3 px-4 text-slate-900 dark:text-white font-semibold">{source.name}</td>
                       <td className="py-3 px-4 text-right text-slate-600 dark:text-slate-400">
                         {source.value.toLocaleString()}
                       </td>
@@ -213,7 +262,7 @@ export default function ScopeEmissions() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Scope 2 Sources */}
             <Card className="p-6">
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">
                 Scope 2 Energy Sources (CSRD Art. 8)
               </h3>
               <div className="h-80">
@@ -236,11 +285,19 @@ export default function ScopeEmissions() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              
+              {/* AI Insight Table */}
+              <div className="mt-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <h4 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-3">AI Analysis</h4>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {generateSourcesInsight(scope2Data.sources)}
+                </p>
+              </div>
             </Card>
 
             {/* Grid Mix */}
             <Card className="p-6">
-              <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Grid Energy Mix Composition</h3>
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Grid Energy Mix Composition</h3>
               <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -254,12 +311,20 @@ export default function ScopeEmissions() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              
+              {/* AI Insight Table */}
+              <div className="mt-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                <h4 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-3">AI Analysis</h4>
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                  {generateGridMixInsight(scope2Data.gridMix)}
+                </p>
+              </div>
             </Card>
           </div>
 
           {/* Scope 2 Trend */}
           <Card className="p-6">
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Monthly Scope 2 Trend</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Monthly Scope 2 Trend</h3>
             <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={scope2Data.trend}>
@@ -273,19 +338,27 @@ export default function ScopeEmissions() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
+            
+            {/* AI Insight Table */}
+            <div className="mt-4 bg-blue-50 dark:bg-blue-950/50 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+              <h4 className="text-base font-bold text-blue-900 dark:text-blue-100 mb-3">AI Analysis</h4>
+              <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                {generateTrendInsight(scope2Data.trend)}
+              </p>
+            </div>
           </Card>
 
           {/* Scope 2 Detailed Table */}
           <Card className="p-6">
-            <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Scope 2 Detailed Breakdown</h3>
+            <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-4">Scope 2 Detailed Breakdown</h3>
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-base">
                 <thead>
                   <tr className="border-b border-slate-200 dark:border-slate-700">
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">Energy Source</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">Tonnes CO₂e</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-900 dark:text-white">% of Scope 2</th>
-                    <th className="text-left py-3 px-4 font-semibold text-slate-900 dark:text-white">
+                    <th className="text-left py-3 px-4 font-bold text-slate-900 dark:text-white">Energy Source</th>
+                    <th className="text-right py-3 px-4 font-bold text-slate-900 dark:text-white">Tonnes CO₂e</th>
+                    <th className="text-right py-3 px-4 font-bold text-slate-900 dark:text-white">% of Scope 2</th>
+                    <th className="text-left py-3 px-4 font-bold text-slate-900 dark:text-white">
                       Description (CSRD)
                     </th>
                   </tr>
@@ -296,7 +369,7 @@ export default function ScopeEmissions() {
                       key={idx}
                       className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900/50"
                     >
-                      <td className="py-3 px-4 text-slate-900 dark:text-white font-medium">{source.name}</td>
+                      <td className="py-3 px-4 text-slate-900 dark:text-white font-semibold">{source.name}</td>
                       <td className="py-3 px-4 text-right text-slate-600 dark:text-slate-400">
                         {source.value.toLocaleString()}
                       </td>
@@ -316,13 +389,13 @@ export default function ScopeEmissions() {
       {/* CSRD & EU Taxonomy Compliance Notes */}
       <Card className="p-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
         <div className="space-y-3">
-          <h3 className="font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-600" />
+          <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+            <Activity className="w-6 h-6 text-blue-600" />
             CSRD & EU Taxonomy Compliance
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
             <div>
-              <p className="font-semibold text-slate-900 dark:text-white mb-1">CSRD Requirements (Art. 8):</p>
+              <p className="font-bold text-slate-900 dark:text-white mb-2">CSRD Requirements (Art. 8):</p>
               <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
                 <li>Scope 1 & 2 emissions must be reported</li>
                 <li>Data quality and assurance requirements</li>
@@ -331,7 +404,7 @@ export default function ScopeEmissions() {
               </ul>
             </div>
             <div>
-              <p className="font-semibold text-slate-900 dark:text-white mb-1">EU Taxonomy Alignment:</p>
+              <p className="font-bold text-slate-900 dark:text-white mb-2">EU Taxonomy Alignment:</p>
               <ul className="list-disc list-inside space-y-1 text-slate-600 dark:text-slate-300">
                 <li>Substantial contribution to climate action</li>
                 <li>Do no significant harm (DNSH) principle</li>
